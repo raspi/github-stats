@@ -345,8 +345,8 @@ fn main() -> Result<(), io::Error> {
                             fname.clone().display(),
                         );
                     }
-                    Err(_) => {
-                        eprintln!("error moving {} to {}", tmpfname.display(), fname.display());
+                    Err(e) => {
+                        eprintln!("error moving {} to {}; {}", tmpfname.display(), fname.display(), e);
                         exit(1)
                     }
                 };
