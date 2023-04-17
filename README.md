@@ -28,3 +28,9 @@ github-stats stats heksa
 ```
 
 The generated chart is saved to `stats` directory.
+
+# Internals
+
+* [reqwest](https://crates.io/crates/reqwest) as HTTP client
+* [rusqlite](https://crates.io/crates/rusqlite) as SQLite lib
+* [plotters](https://crates.io/crates/plotters) as SVG renderer
