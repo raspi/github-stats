@@ -30,7 +30,7 @@ Options:
 ## Setting up
 
 First copy `config.example.toml` to `config.toml` and edit the config with your favorite editor.
-Generate or use existing GitHub API key.
+[Generate](https://github.com/settings/tokens) new API key or use existing one.
 
 ## Example:
 
