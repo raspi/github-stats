@@ -6,12 +6,33 @@ Traffic statistics for views and clones are downloaded from GitHub API to a loca
 
 GitHub keeps these statistics only for 14 days. With this program you can keep infinite days in local database and update the statistics once per day.
 
-# Setting up
+## Usage
+
+```
+% github-stats --help
+Generate project traffic statistics charts from GitHub API
+
+Usage: github-stats [OPTIONS] <COMMAND>
+
+Commands:
+fetch       Fetch traffic statistics from Github to a local database
+list-repos  List repositories found in local database
+stats       Get statistics from local database
+help        Print this message or the help of the given subcommand(s)
+
+Options:
+-v, --verbose          Be verbose?
+-c, --config <CONFIG>  Config file [default: config.toml]
+-h, --help             Print help
+-V, --version          Print version
+```
+
+## Setting up
 
 First copy `config.example.toml` to `config.toml`.
 Generate or use existing GitHub API key.
 
-# Example usage:
+## Example:
 
 Fetch latest statistics:
 
@@ -19,7 +40,7 @@ Fetch latest statistics:
 github-stats fetch
 ```
 
-Data from GitHub API is cached for one hour.
+Note: data from GitHub API is cached for one hour in `cache` directory.
 
 Generate SVG for a repository named *heksa*:
 
@@ -29,8 +50,14 @@ github-stats stats heksa
 
 The generated chart is saved to `stats` directory.
 
-# Internals
+Now you can for example copy the result to your web page and for example display the chart in `README.md`.
+
+## Internals
 
 * [reqwest](https://crates.io/crates/reqwest) as HTTP client
-* [rusqlite](https://crates.io/crates/rusqlite) as SQLite lib
+* [rusqlite](https://crates.io/crates/rusqlite) as SQLite library
 * [plotters](https://crates.io/crates/plotters) as SVG renderer
+
+## Is it any good?
+
+Yes.
