@@ -29,12 +29,12 @@ Options:
 
 ## Setting up
 
-First copy `config.example.toml` to `config.toml`.
+First copy `config.example.toml` to `config.toml` and edit the config with your favorite editor.
 Generate or use existing GitHub API key.
 
 ## Example:
 
-Fetch latest statistics:
+Fetch latest statistics from GitHub to local database:
 
 ```shell
 github-stats fetch
