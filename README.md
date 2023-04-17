@@ -42,13 +42,13 @@ github-stats fetch
 
 Note: data from GitHub API is cached for one hour in `cache` directory.
 
-Generate SVG for a repository named *heksa*:
+Generate SVG chart for a repository named *heksa*:
 
 ```shell
 github-stats stats heksa
 ```
 
-The generated chart is saved to `stats` directory.
+The generated chart is saved to `stats` directory. Stats for last 30 days is displayed.
 
 Now you can for example copy the result to your web page and for example display the chart in `README.md`.
 
