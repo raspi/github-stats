@@ -1,0 +1,38 @@
+[package]
+name = "github-stats"
+version = "0.1.0"
+edition = "2021"
+homepage = "https://github.com/raspi/github-stats"
+authors = ["Pekka Järvinen"]
+description = "Generate project traffic statistics charts from GitHub API"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "githubstats"
+path = "src/lib.rs"
+
+[[bin]]
+name = "github-stats"
+path = "src/main.rs"
+
+# Smaller exutable
+[profile.release]
+strip = true
+opt-level = "z"
+lto = true
+codegen-units = 1
+#panic = "abort"
+
+[dependencies]
+serde_json = "1.0.95"
+serde = { version = "1.0.159", features = ["derive"] }
+chrono = "0.4.24"
+reqwest = { version = "0.11.16", features = ["blocking", "json"] }
+rusqlite = {version= "0.29.0", features = ["chrono"]}
+rand = "0.8.5"
+regex = "1.7.3"
+clap = { version = "4.1.13", features = ["derive"] }
+toml = "0.7.3"
+plotters = "0.3.4"
+human_format = "1.0.3"

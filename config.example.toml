@@ -1,0 +1,13 @@
+# This is example configuration
+
+# Local SQLite database
+[database]
+filename = "traffic.sqlite"
+
+# GitHub API
+[github]
+# API key
+apikey = "generate at https://github.com/settings/tokens or use existing"
+# User name
+user = ""
+
