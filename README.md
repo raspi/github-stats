@@ -1,5 +1,9 @@
 # github-stats
 
+![GitHub All Releases](https://img.shields.io/github/downloads/raspi/github-stats/total?style=for-the-badge)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/raspi/github-stats?style=for-the-badge)
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/raspi/github-stats?style=for-the-badge)
+
 Generate GitHub traffic statistics SVG charts.
 
 Traffic statistics for views and clones are downloaded from GitHub API to a local SQLite database.
