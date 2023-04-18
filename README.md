@@ -6,6 +6,11 @@ Traffic statistics for views and clones are downloaded from GitHub API to a loca
 
 GitHub keeps these statistics only for 14 days. With this program you can keep infinite days in local database and update the statistics once per day.
 
+Example for this project:
+
+<img src="https://github.raspi.fi/stats/github-stats_views.svg" width="500" align="left" />
+<img src="https://github.raspi.fi/stats/github-stats_clones.svg" width="500" />
+
 ## Usage
 
 ```
