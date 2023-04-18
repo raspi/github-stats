@@ -1,0 +1,23 @@
+# Systemd timer
+# Help: https://www.freedesktop.org/software/systemd/man/systemd.timer.html
+# Enable for user:
+# systemctl enable --user $(pwd)/github-stats.timer
+# Start:
+# systemctl start --user github-stats.timer
+# Next run time:
+# systemctl list-timers --all
+
+[Unit]
+Description=Update GitHub stats
+
+[Timer]
+# https://www.freedesktop.org/software/systemd/man/systemd.time.html
+OnCalendar=01:00:00 UTC
+RandomizedDelaySec=5min
+Unit=github-stats.service
+# Uptime after it's ran
+OnBootSec=60min
+Persistent=true
+
+[Install]
+WantedBy=multi-user.target

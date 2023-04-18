@@ -1,0 +1,25 @@
+# Systemd service
+# Help: https://www.freedesktop.org/software/systemd/man/systemd.service.html
+# Enable for user:
+# systemctl enable --user $(pwd)/github-stats.service
+# Start
+# systemctl start --user github-stats.service
+
+[Unit]
+Description=Update GitHub stats service
+After=network-online.target
+
+[Service]
+# change this
+WorkingDirectory=/home/stats
+# change this
+ExecStart=/home/stats/update_stats.sh
+
+# Wait time if process hangs
+TimeoutStopSec=15m
+Type=simple
+KillMode=process
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target
