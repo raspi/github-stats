@@ -19,3 +19,4 @@ config.toml
 /cache
 /stats
 *.sqlite
+/release/v*.*.*
