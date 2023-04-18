@@ -8,12 +8,12 @@ CROSSBIN="$HOME/.cargo/bin/cross"
 CROSSARGS="build --release"
 
 # https://github.com/cross-rs/cross#supported-targets
-ARCHS="x86_64-unknown-linux-gnu x86_64-unknown-netbsd powerpc64-unknown-linux-gnu powerpc64le-unknown-linux-gnu aarch64-unknown-linux-gnu arm-unknown-linux-gnueabi"
+ARCHS="x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu"
 
 for t in $ARCHS
 do
   echo "ARCH: $t -------------------------------------------"
-  $CROSSBIN $CROSSARGS --target "$t"
+  $CROSSBIN $CROSSARGS --target "$t" || exit $?
 
   exe=$EXE
   if [ "$t" == "x86_64-pc-windows-gnu" ]; then
@@ -38,7 +38,7 @@ done
 # Get version from compiled release
 VERSION=$(target/x86_64-unknown-linux-gnu/release/$EXE --version | cut -d' ' -f2)
 
-mkdir "release/v$VERSION"
+mkdir -p "release/v$VERSION"
 
 for t in $ARCHS
 do

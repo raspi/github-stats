@@ -1,0 +1,23 @@
+# x64
+[target.x86_64-unknown-linux-gnu]
+pre-build = [
+    "export DEBIAN_FRONTEND=noninteractive",
+    "dpkg --add-architecture $CROSS_DEB_ARCH",
+    "apt-get update && apt-get install -y libssl-dev:$CROSS_DEB_ARCH libfontconfig-dev:$CROSS_DEB_ARCH libsqlite3-dev:$CROSS_DEB_ARCH",
+]
+
+# ARM 64 bit
+[target.aarch64-unknown-linux-gnu]
+pre-build = [
+    "export DEBIAN_FRONTEND=noninteractive",
+    "dpkg --add-architecture $CROSS_DEB_ARCH",
+    "apt-get update && apt-get install -y libssl-dev:$CROSS_DEB_ARCH libfontconfig-dev:$CROSS_DEB_ARCH libsqlite3-dev:$CROSS_DEB_ARCH",
+]
+
+# ARM 32 bit
+[target.arm-unknown-linux-gnueabi]
+pre-build = [
+    "export DEBIAN_FRONTEND=noninteractive",
+    "dpkg --add-architecture $CROSS_DEB_ARCH",
+    "apt-get update && apt-get install -y libssl-dev:$CROSS_DEB_ARCH libfontconfig-dev:$CROSS_DEB_ARCH libsqlite3-dev:$CROSS_DEB_ARCH",
+]
