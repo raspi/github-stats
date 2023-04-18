@@ -624,7 +624,7 @@ impl Database {
 
         let mut stmt = self.conn.prepare(
             r#"SELECT
-              DATE(format('%04d-%02d-%02d', y,m,d)) date,
+              DATE(printf('%04d-%02d-%02d', y,m,d)) date,
               v_count, v_uniq,
               c_count, c_uniq
             FROM traffic
