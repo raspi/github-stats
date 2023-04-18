@@ -51,13 +51,15 @@ github-stats stats heksa
 
 The generated chart is saved to `stats` directory. Stats for last 30 days is displayed.
 
-Now you can for example copy the result to your web page and for example display the chart in `README.md`.
+Now you can for example copy the result to your web page and for example display the chart in your project's `README.md`.
 
 Generate all statistics charts at once:
 
 ```shell
 github-stats generate
 ```
+
+See [example](example) directory for how to automate updates with systemd.
 
 ## Internals
 
