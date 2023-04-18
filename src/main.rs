@@ -1,5 +1,6 @@
 use std::{fs, io};
 use std::collections::HashMap;
+use std::error::Error;
 use std::fs::rename;
 use std::path::PathBuf;
 use std::process::exit;
@@ -31,7 +32,7 @@ struct ConfigGitHub {
 // Config file key: [database]
 #[derive(Deserialize)]
 struct ConfigDatabase {
-    filename: PathBuf,
+    filename: PathBuf, // SQLite database file name
 }
 
 
@@ -65,8 +66,11 @@ enum Commands {
     #[clap(about = "List repositories found in local database")]
     ListRepos(CommandListReposArgs),
 
-    #[clap(about = "Get statistics from local database")]
+    #[clap(about = "Generate statistics for repo from local database")]
     Stats(CommandStatsArgs),
+
+    #[clap(about = "Generate all statistics from local database")]
+    Generate(CommandGenerateArgs),
 }
 
 #[derive(Args, Debug)]
@@ -85,6 +89,14 @@ struct CommandStatsArgs {
     help = "Repository")]
     repo: String,
 }
+
+#[derive(Args, Debug)]
+struct CommandGenerateArgs {
+    #[clap(short = 'd', long, default_value = "30",
+    help = "Days")]
+    days: u64,
+}
+
 
 fn main() -> Result<(), io::Error> {
     let args: CLIArgs = CLIArgs::parse();
@@ -229,7 +241,7 @@ fn main() -> Result<(), io::Error> {
                          row[2], widths[2],
                 );
             }
-        }
+        } // /Command
 
         // Generate statistics SVG
         Commands::Stats(subargs) => {
@@ -243,118 +255,159 @@ fn main() -> Result<(), io::Error> {
                 exit(1);
             }
 
-            match db.repo_exists(&config.github.user, &subargs.repo) {
-                Ok(exists) => {
-                    if !exists {
-                        eprintln!("repo named {} doesn't exist in local database", &subargs.repo);
-                        exit(1);
-                    }
-                }
+            match generate(&db, config.github.user, subargs.repo.clone()) {
+                Ok(_) => {}
                 Err(e) => {
-                    eprintln!("error getting repo {} {}", subargs.repo, e);
+                    eprintln!("error getting repo {} {}", &subargs.repo, e);
                     exit(1)
                 }
+            };
+        } // /Command
+
+        Commands::Generate(genargs) => {
+            if !config.database.filename.exists() {
+                eprintln!("missing database file");
+                exit(1)
             }
 
-            let stats = match db.get_repo_stats(&config.github.user, &subargs.repo) {
+            let repos = match db.get_repo_list() {
                 Ok(r) => { r }
                 Err(e) => {
-                    eprintln!("error getting repo {} {}", subargs.repo, e);
+                    eprintln!("error getting repo list: {}", e);
                     exit(1)
                 }
             };
 
-            let fpath = PathBuf::from("stats");
-            if !fpath.exists() {
-                fs::create_dir_all(fpath.clone())?;
-            }
-
-            for t in [Clones, Views] {
-                let n = match t {
-                    Clones => "clones",
-                    Views => "views",
-                };
-
-                // Legend
-                let renames: HashMap<u8, String> = [
-                    (0, "Count".to_string()),
-                    (1, "Unique".to_string()),
-                ].iter().cloned().collect();
-
-                let random_str = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
-
-                let tmpfname = PathBuf::from("cache")
-                    .join(format!(".tmp-{}_{}_{}.svg", n, subargs.repo, random_str))
-                    ;
-
-                let fname = fpath
-                    .clone()
-                    .join(format!("{}_{}.svg", subargs.repo, n))
-                    ;
-
-                let mut chart_gen: ChartGenerator = ChartGenerator::new(
-                    format!("GitHub {} for {}", n, subargs.repo),
-                    tmpfname.clone(),
-                    renames.clone(),
-                );
-
-                // Add clone and view count(s)
-                for (_, item) in stats.iter().enumerate() {
-                    let mut m: HashMap<u8, u64> = HashMap::new();
-
-                    match t {
-                        Clones => {
-                            m = [
-                                (0, item.clones.count),
-                                (1, item.clones.uniques),
-                            ].iter().cloned().collect();
-                        }
-                        Views => {
-                            m = [
-                                (0, item.views.count),
-                                (1, item.views.uniques),
-                            ].iter().cloned().collect();
-                        }
-                    }
-
-                    chart_gen.add(item.date, m);
-                } // /for
-
-                // Render SVG
-                match chart_gen.render() {
-                    Ok(_) => {
-                        println!(
-                            "Generated {} temp statistics SVG for repo {} as {}",
-                            n,
-                            subargs.repo,
-                            tmpfname.clone().display(),
-                        );
-                    }
+            for repo in repos {
+                match generate(&db, config.github.user.clone(), repo.name.clone()) {
+                    Ok(_) => {}
                     Err(e) => {
-                        eprintln!("error generating {} SVG for repo {} {}", n, subargs.repo, e);
-                        exit(1)
-                    }
-                };
-
-                match rename(tmpfname.clone(), fname.clone()) {
-                    Ok(_) => {
-                        println!(
-                            "Moved {} statistics SVG for repo {} to {}",
-                            n,
-                            subargs.repo,
-                            fname.clone().display(),
-                        );
-                    }
-                    Err(e) => {
-                        eprintln!("error moving {} to {}; {}", tmpfname.display(), fname.display(), e);
+                        eprintln!("error getting repo {} {}", repo.name, e);
                         exit(1)
                     }
                 };
             }
-        }
+        } // /Command
     }
 
     // Ok
     Ok(())
 }
 
+fn generate(
+    db: &Database,
+    owner: String,
+    repo_name: String,
+) -> Result<(), Box<dyn Error>> {
+    match db.repo_exists(&owner, &repo_name) {
+        Ok(exists) => {
+            if !exists {
+                eprintln!("repo named {} doesn't exist in local database", &repo_name);
+                exit(1);
+            }
+        }
+        Err(e) => {
+            eprintln!("error getting repo {} {}", &repo_name, e);
+            exit(1)
+        }
+    }
+
+    let stats = match db.get_repo_stats(&owner, &repo_name) {
+        Ok(r) => { r }
+        Err(e) => {
+            eprintln!("error getting repo {} {}", &repo_name, e);
+            exit(1)
+        }
+    };
+
+    let fpath = PathBuf::from("stats");
+    if !fpath.exists() {
+        fs::create_dir_all(fpath.clone())?;
+    }
+
+    for t in [Clones, Views] {
+        let n = match t {
+            Clones => "clones",
+            Views => "views",
+        };
+
+        // Legend
+        let renames: HashMap<u8, String> = [
+            (0, "Count".to_string()),
+            (1, "Unique".to_string()),
+        ].iter().cloned().collect();
+
+        let random_str = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
+
+        let tmpfname = PathBuf::from("cache")
+            .join(format!(".tmp-{}_{}_{}.svg", n, &repo_name, random_str))
+            ;
+
+        let fname = fpath
+            .clone()
+            .join(format!("{}_{}.svg", &repo_name, n))
+            ;
+
+        let mut chart_gen: ChartGenerator = ChartGenerator::new(
+            format!("GitHub {} for {}", n, &repo_name),
+            tmpfname.clone(),
+            renames.clone(),
+        );
+
+        // Add clone and view count(s)
+        for (_, item) in stats.iter().enumerate() {
+            let mut m: HashMap<u8, u64> = HashMap::new();
+
+            match t {
+                Clones => {
+                    m = [
+                        (0, item.clones.count),
+                        (1, item.clones.uniques),
+                    ].iter().cloned().collect();
+                }
+                Views => {
+                    m = [
+                        (0, item.views.count),
+                        (1, item.views.uniques),
+                    ].iter().cloned().collect();
+                }
+            }
+
+            chart_gen.add(item.date, m);
+        } // /for
+
+        // Render SVG
+        match chart_gen.render() {
+            Ok(_) => {
+                println!(
+                    "Generated {} temp statistics SVG for repo {} as {}",
+                    n,
+                    &repo_name,
+                    tmpfname.clone().display(),
+                );
+            }
+            Err(e) => {
+                eprintln!("error generating {} SVG for repo {} {}", n, &repo_name, e);
+                exit(1)
+            }
+        };
+
+        match rename(tmpfname.clone(), fname.clone()) {
+            Ok(_) => {
+                println!(
+                    "Moved {} statistics SVG for repo {} {} to {}",
+                    n,
+                    &repo_name,
+                    tmpfname.clone().display(),
+                    fname.clone().display(),
+                );
+            }
+            Err(e) => {
+                eprintln!("error moving {} to {}; {}", tmpfname.display(), fname.display(), e);
+                exit(1)
+            }
+        };
+    }
+
+    Ok(())
+}
