@@ -15,16 +15,17 @@ Generate project traffic statistics charts from GitHub API
 Usage: github-stats [OPTIONS] <COMMAND>
 
 Commands:
-fetch       Fetch traffic statistics from Github to a local database
-list-repos  List repositories found in local database
-stats       Get statistics from local database
-help        Print this message or the help of the given subcommand(s)
+  fetch       Fetch traffic statistics from Github to a local database
+  list-repos  List repositories found in local database
+  stats       Generate statistics for repo from local database
+  generate    Generate all statistics from local database
+  help        Print this message or the help of the given subcommand(s)
 
 Options:
--v, --verbose          Be verbose?
--c, --config <CONFIG>  Config file [default: config.toml]
--h, --help             Print help
--V, --version          Print version
+  -v, --verbose          Be verbose?
+  -c, --config <CONFIG>  Config file [default: config.toml]
+  -h, --help             Print help
+  -V, --version          Print version
 ```
 
 ## Setting up
@@ -51,6 +52,12 @@ github-stats stats heksa
 The generated chart is saved to `stats` directory. Stats for last 30 days is displayed.
 
 Now you can for example copy the result to your web page and for example display the chart in `README.md`.
+
+Generate all statistics charts at once:
+
+```shell
+github-stats generate
+```
 
 ## Internals
 
