@@ -527,8 +527,8 @@ impl Database {
             self.conn.execute(
                 r#"INSERT OR IGNORE INTO
                      traffic
-                     (y,  m,  d, owner, repo) VALUES
-                     (?1, ?2, ?3, ?4, ?5)
+                     (y,  m,  d,  owner, repo) VALUES
+                     (?1, ?2, ?3, ?4,    ?5)
                      "#,
                 (
                     stat.timestamp.year(), stat.timestamp.month(), stat.timestamp.day(),
