@@ -760,6 +760,11 @@ impl ChartGenerator {
             }
         }
 
+        if max_y < 10 {
+            // Minimum 10, so that the zeroes don't go over the title
+            max_y = 10;
+        }
+
         let root = SVGBackend::new(
             self.filename.as_path(),
             (self.width, self.height),
