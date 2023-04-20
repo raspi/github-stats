@@ -273,6 +273,7 @@ impl GithubStats {
         }
     }
 
+    // Get list of repositories
     pub fn get_repositories(
         &self,
         name: String,
@@ -295,6 +296,7 @@ impl GithubStats {
         Ok(l)
     }
 
+    // Get a single JSON page of repositories list
     fn get_repos(
         &self,
         name: String, // Repository's name
@@ -588,6 +590,7 @@ impl Database {
         }
     }
 
+    // Get list of repositories
     pub fn get_repo_list(&self) -> rusqlite::Result<Vec<Repo>> {
         let mut stmt = self.conn.prepare(
             r#"SELECT
@@ -615,6 +618,7 @@ impl Database {
         Ok(res)
     }
 
+    // Get traffic stats of a single repository
     pub fn get_repo_stats(
         &self,
         owner: &str,
@@ -749,6 +753,7 @@ impl ChartGenerator {
         self.data.insert(d, data);
     }
 
+    // Render SVG
     pub fn render(&self) -> Result<(), Box<dyn Error>> {
         let mut max_y: u64 = 0;
 
@@ -904,6 +909,7 @@ impl ChartGenerator {
         Ok(())
     }
 
+    // Reset internal data
     pub fn reset(&mut self) {
         self.data = Default::default();
         self.counts = Default::default();
