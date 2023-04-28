@@ -83,7 +83,7 @@ struct CommandListReposArgs {}
 struct CommandStatsArgs {
     #[clap(short = 'd', long, default_value = "30",
     help = "Days")]
-    days: u64,
+    days: u32,
 
     #[clap(required = true,
     help = "Repository")]
@@ -94,7 +94,7 @@ struct CommandStatsArgs {
 struct CommandGenerateArgs {
     #[clap(short = 'd', long, default_value = "30",
     help = "Days")]
-    days: u64,
+    days: u32,
 }
 
 
@@ -255,7 +255,7 @@ fn main() -> Result<(), io::Error> {
                 exit(1);
             }
 
-            match generate(&db, config.github.user, subargs.repo.clone()) {
+            match generate(&db, config.github.user, subargs.repo.clone(), subargs.days) {
                 Ok(_) => {}
                 Err(e) => {
                     eprintln!("error getting repo {} {}", &subargs.repo, e);
@@ -279,7 +279,7 @@ fn main() -> Result<(), io::Error> {
             };
 
             for repo in repos {
-                match generate(&db, config.github.user.clone(), repo.name.clone()) {
+                match generate(&db, config.github.user.clone(), repo.name.clone(), genargs.days) {
                     Ok(_) => {}
                     Err(e) => {
                         eprintln!("error getting repo {} {}", repo.name, e);
@@ -298,6 +298,7 @@ fn generate(
     db: &Database,
     owner: String,
     repo_name: String,
+    days: u32,
 ) -> Result<(), Box<dyn Error>> {
     match db.repo_exists(&owner, &repo_name) {
         Ok(exists) => {
@@ -312,7 +313,7 @@ fn generate(
         }
     }
 
-    let stats = match db.get_repo_stats(&owner, &repo_name) {
+    let stats = match db.get_repo_stats(&owner, &repo_name, days) {
         Ok(r) => { r }
         Err(e) => {
             eprintln!("error getting repo {} {}", &repo_name, e);
@@ -352,6 +353,7 @@ fn generate(
             format!("GitHub {} for {}", n, &repo_name),
             tmpfname.clone(),
             renames.clone(),
+            days,
         );
 
         // Add clone and view count(s)

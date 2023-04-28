@@ -623,6 +623,7 @@ impl Database {
         &self,
         owner: &str,
         repo_name: &str,
+        days: u32,
     ) -> rusqlite::Result<Vec<RepoStats>> {
         let mut res: Vec<RepoStats> = Vec::new();
 
@@ -636,12 +637,12 @@ impl Database {
               owner=?1 AND repo=?2
             GROUP BY date
             ORDER BY date DESC
-            LIMIT 30
+            LIMIT ?3
             "#,
         )?;
 
         let items = stmt.query_map(
-            (owner, repo_name), |row| {
+            (owner, repo_name, days), |row| {
                 let date: NaiveDate = row.get(0)?;
 
                 Ok(RepoStats {
@@ -719,6 +720,8 @@ pub struct ChartGenerator {
     height: u32,
     filename: PathBuf,
     title: String,
+    // How many days, usually 30
+    days: u32,
 }
 
 impl ChartGenerator {
@@ -726,6 +729,7 @@ impl ChartGenerator {
         title: String,
         filename: PathBuf,
         renames: HashMap<u8, String>,
+        days: u32,
     ) -> Self {
         Self {
             title: title,
@@ -735,6 +739,7 @@ impl ChartGenerator {
             width: 640,
             height: 480,
             filename: filename,
+            days: days,
         }
     }
 
@@ -792,7 +797,7 @@ impl ChartGenerator {
             .x_label_area_size(35)// days
             .y_label_area_size(30)// counts
             .build_cartesian_2d(
-                0u32..30, // days 0-29 / 1-30
+                0u32..self.days, // days 0-29 / 1-30
                 0u64..((max_y + 9) / 10 * 10), // count of views / clones rounded to nearest ten
             )?
             ;
@@ -805,7 +810,7 @@ impl ChartGenerator {
                 format!(
                     "Dates {:?} - {:?}",
                     now_naive,
-                    now_naive.clone().checked_sub_days(Days::new(30)).expect("date error")
+                    now_naive.clone().checked_sub_days(Days::new(self.days as u64)).expect("date error")
                 )
             )
             .y_desc("Count")
@@ -817,6 +822,7 @@ impl ChartGenerator {
             // format of the label text
             .y_label_formatter(
                 &|y| {
+                    // View / clone counts
                     if *y < 10000 {
                         y.to_string()
                     } else {
@@ -828,6 +834,7 @@ impl ChartGenerator {
             )
             .x_label_formatter(
                 &|x| {
+                    // Date
                     format!(
                         "{:?}",
                         now_naive.checked_sub_days(
@@ -844,7 +851,7 @@ impl ChartGenerator {
             let mut data: Vec<(u32, u64)> = vec![];
 
             // Last N days of data
-            for day_index in 0..30 {
+            for day_index in 0..self.days {
                 match self.data.get(&now) {
                     None => { data.push((day_index, 0)) }
                     Some(d) => {
