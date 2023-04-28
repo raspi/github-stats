@@ -713,8 +713,8 @@ pub struct ChartGenerator {
         NaiveDate, HashMap<u8, u64>
     >,
     renames: HashMap<u8, String>,
-    counts: HashMap<u8, u64>,
     // For average(s)
+    counts: HashMap<u8, u64>,
     width: u32,
     height: u32,
     filename: PathBuf,
@@ -723,7 +723,7 @@ pub struct ChartGenerator {
 
 impl ChartGenerator {
     pub fn new(
-        title:String,
+        title: String,
         filename: PathBuf,
         renames: HashMap<u8, String>,
     ) -> Self {
@@ -739,9 +739,10 @@ impl ChartGenerator {
     }
 
     // Add chart data points
-    pub fn add(&mut self,
-               d: NaiveDate,
-               data: HashMap<u8, u64>,
+    pub fn add(
+        &mut self,
+        d: NaiveDate,
+        data: HashMap<u8, u64>,
     ) {
         for (k, v) in &data {
             *self.counts
@@ -881,8 +882,11 @@ impl ChartGenerator {
                 .label(
                     // Add legend name
                     match self.renames.get(&typeid) {
-                        None => { "?" }
-                        Some(n) => { n }
+                        None => { String::from("?") }
+                        Some(n) => {
+                            // Add total counts
+                            format!("{} ({})", n, self.counts[&typeid])
+                        }
                     }
                 )
                 .legend(move |(x, y)|
