@@ -12,8 +12,8 @@ GitHub keeps these statistics only for 14 days. With this program you can keep i
 
 Example for this project:
 
-<img src="https://github.raspi.fi/stats/github-stats_views.svg" width="500" align="left" />
-<img src="https://github.raspi.fi/stats/github-stats_clones.svg" width="500" />
+<img src="_asset/github-stats_views.svg" width="500" align="left" alt="SVG: views" />
+<img src="_asset/github-stats_clones.svg" width="500" alt="SVG: clones" />
 
 ## Usage
 
