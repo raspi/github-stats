@@ -24,3 +24,19 @@ Wed 2023-04-19 04:04:17 EEST 12h left Tue 2023-04-18 15:07:18 EEST 24min ago git
 See logs with:
 
     % journalctl --user -eu github-stats.service
+
+
+### Mini FAQ
+
+**systemd user timer doesn't work when I log out from a system which runs the timer**
+
+You must enable *linger* for your user, otherwise systemd shuts all user processes after logout. 
+
+Use:
+
+    % sudo loginctl enable-linger <user>
+
+For example:
+
+    % sudo loginctl enable-linger raspi
+
