@@ -8,11 +8,12 @@ use std::process::exit;
 use chrono::{NaiveDate, Utc};
 use clap::{Args, command, Parser, Subcommand};
 use rand::distributions::{Alphanumeric, DistString};
-use rand::random;
 use serde::Deserialize;
 use toml::from_str;
 
-use githubstats::*;
+use githubstats::chart::ChartGenerator;
+use githubstats::db::Database;
+use githubstats::github::{GhRepo, GithubStats};
 use githubstats::StatType::{Clones, Views};
 
 // Config file
