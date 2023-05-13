@@ -171,7 +171,7 @@ fn main() -> Result<(), io::Error> {
                 }
 
                 // --- View stats
-                let view_stats = match ghsc.get_stats(StatType::Views, &repo.owner.login, &repo.name) {
+                let view_stats = match ghsc.get_stats(Views, &repo.owner.login, &repo.name) {
                     Ok(d) => { d }
                     Err(e) => {
                         eprintln!("error traffic views: {}", e);
@@ -181,7 +181,7 @@ fn main() -> Result<(), io::Error> {
 
                 if !view_stats.is_empty() {
                     println!("  Updating views...");
-                    db.update_traffic(StatType::Views, &repo.owner.login, &repo.name, view_stats);
+                    db.update_traffic(Views, &repo.owner.login, &repo.name, view_stats);
                 }
             }
 

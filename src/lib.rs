@@ -334,6 +334,7 @@ impl GithubStats {
                                     let link = Self::parse_links_header(raw);
 
                                     if link.contains_key("next") {
+                                        // We have multiple pages of repos
                                         has_next = true;
                                     }
                                 }
@@ -623,6 +624,7 @@ impl Database {
         &self,
         owner: &str,
         repo_name: &str,
+        now_ref: NaiveDate,
         days: u32,
     ) -> rusqlite::Result<Vec<RepoStats>> {
         let mut res: Vec<RepoStats> = Vec::new();
@@ -634,15 +636,20 @@ impl Database {
               c_count, c_uniq
             FROM traffic
             WHERE
-              owner=?1 AND repo=?2
+              owner=?1 AND repo=?2 AND date >= DATE(?3)
             GROUP BY date
             ORDER BY date DESC
-            LIMIT ?3
+            LIMIT ?4
             "#,
         )?;
 
+        // Calculate last date in range
+        let days_ago = now_ref.checked_sub_days(
+            Days::new(days as u64)
+        ).unwrap();
+
         let items = stmt.query_map(
-            (owner, repo_name, days), |row| {
+            (owner, repo_name, days_ago, days), |row| {
                 let date: NaiveDate = row.get(0)?;
 
                 Ok(RepoStats {
@@ -905,7 +912,8 @@ impl ChartGenerator {
         } // /for
 
         // Legend
-        chart.configure_series_labels()
+        chart
+            .configure_series_labels()
             .position(SeriesLabelPosition::UpperRight)
             .margin(20)
             .legend_area_size(0)
