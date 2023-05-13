@@ -402,6 +402,7 @@ fn generate(
             }
         };
 
+        // Move generated temporary file
         match rename(tmpfname.clone(), fname.clone()) {
             Ok(_) => {
                 println!(
