@@ -5,6 +5,7 @@ use std::fs::rename;
 use std::path::PathBuf;
 use std::process::exit;
 
+use chrono::{NaiveDate, Utc};
 use clap::{Args, command, Parser, Subcommand};
 use rand::distributions::{Alphanumeric, DistString};
 use rand::random;
@@ -122,6 +123,11 @@ fn main() -> Result<(), io::Error> {
         }
     };
     drop(contents);
+
+    // Get a static reference to current date so that
+    // if user's stats generation might slip into next day
+    // the generated date range remains the same
+    let now_reference = Utc::now().date_naive();
 
     let db = Database::new(&config.database.filename);
 
@@ -255,7 +261,7 @@ fn main() -> Result<(), io::Error> {
                 exit(1);
             }
 
-            match generate(&db, config.github.user, subargs.repo.clone(), subargs.days) {
+            match generate(&db, config.github.user, subargs.repo.clone(), now_reference, subargs.days) {
                 Ok(_) => {}
                 Err(e) => {
                     eprintln!("error getting repo {} {}", &subargs.repo, e);
@@ -279,7 +285,7 @@ fn main() -> Result<(), io::Error> {
             };
 
             for repo in repos {
-                match generate(&db, config.github.user.clone(), repo.name.clone(), genargs.days) {
+                match generate(&db, config.github.user.clone(), repo.name.clone(), now_reference, genargs.days) {
                     Ok(_) => {}
                     Err(e) => {
                         eprintln!("error getting repo {} {}", repo.name, e);
@@ -294,10 +300,12 @@ fn main() -> Result<(), io::Error> {
     Ok(())
 }
 
+// generate SVG chart for a repo
 fn generate(
     db: &Database,
     owner: String,
     repo_name: String,
+    now_ref: NaiveDate,
     days: u32,
 ) -> Result<(), Box<dyn Error>> {
     match db.repo_exists(&owner, &repo_name) {
@@ -313,7 +321,7 @@ fn generate(
         }
     }
 
-    let stats = match db.get_repo_stats(&owner, &repo_name, days) {
+    let stats = match db.get_repo_stats(&owner, &repo_name, now_ref, days) {
         Ok(r) => { r }
         Err(e) => {
             eprintln!("error getting repo {} {}", &repo_name, e);
