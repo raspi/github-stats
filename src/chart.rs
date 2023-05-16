@@ -60,7 +60,7 @@ impl ChartGenerator {
     }
 
     // Render SVG
-    pub fn render(&self) -> Result<(), Box<dyn Error>> {
+    pub fn render(&mut self) -> Result<(), Box<dyn Error>> {
         let mut max_y: u64 = 0;
 
         for (_, vals) in self.data.clone() {
@@ -147,6 +147,9 @@ impl ChartGenerator {
 
 
         for typeid in 0u8..2 {
+            // Add empty if missing
+            self.counts.entry(typeid).or_insert(0);
+
             let mut now = now_naive.clone().to_owned();
             let mut data: Vec<(u32, u64)> = vec![];
 
